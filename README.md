@@ -2,6 +2,10 @@
   <img src="docs/assets/spinmdkit-logo.png" alt="SpinMDKit logo" width="260">
 </p>
 
+<p align="center">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 # SpinMDKit
 
 [![CI](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml/badge.svg)](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml)

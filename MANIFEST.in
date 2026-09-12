@@ -2,6 +2,7 @@ include CMakeLists.txt
 include CHANGELOG.md
 include LICENSE
 include README.md
+include README.zh-CN.md
 include CONTRIBUTING.md
 include VERSIONING.md
 include cpp/*.cpp
