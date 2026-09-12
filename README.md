@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/spinmdkit-logo.png" alt="SpinMDKit logo" width="260">
+</p>
+
 # SpinMDKit
 
 [![CI](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml/badge.svg)](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml)
