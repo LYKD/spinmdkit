@@ -18,6 +18,10 @@ Install `.[plot]` only when working on the independent visualization layer.
 Do not change the version in a contribution unless the maintainer explicitly
 requests it. See [VERSIONING.md](VERSIONING.md).
 
+Contributions are accepted under the GNU General Public License version 3.
+Submitting a contribution means you have the right to provide it under that
+license. See [LICENSE](LICENSE).
+
 Run the example CLI before submitting a change:
 
 ```bash

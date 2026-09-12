@@ -9,7 +9,7 @@
 # SpinMDKit
 
 [![CI](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml/badge.svg)](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 **SpinMDKit is a format-extensible magnetic-moment post-processing framework for
 spin molecular dynamics.** It streams large trajectories, calculates magnetic
@@ -189,6 +189,17 @@ keeping downstream analysis and plotting independent of input syntax.
 
 See [Data model](docs/data-model.md), [Architecture](docs/architecture.md), and
 [Adding a reader](docs/adding-readers.md) for the design details.
+
+## License
+
+SpinMDKit is distributed under the
+[GNU General Public License version 3](LICENSE). Distributed modified or
+derivative works must remain under GPLv3, and object-code distributions must
+make the corresponding source available under the license terms. Proprietary
+relicensing requires separate permission from the relevant copyright holders.
+
+This change does not retroactively revoke rights already granted for copies
+obtained under an earlier license.
 
 ## Version policy
 

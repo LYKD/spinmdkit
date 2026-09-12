@@ -4,6 +4,12 @@ All notable changes to SpinMDKit are documented here.
 
 ## Unreleased (version remains 1.0.0)
 
+### Changed
+
+- Replaced the permissive MIT license with GNU GPL version 3 for current and
+  future distributions. Rights already granted for earlier MIT-licensed copies
+  are not retroactively revoked.
+
 ### Added
 
 - Added format-neutral magnetic-moment time-series analysis with explicit

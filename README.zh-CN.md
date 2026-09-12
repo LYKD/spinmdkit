@@ -9,7 +9,7 @@
 # SpinMDKit
 
 [![CI](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml/badge.svg)](https://github.com/LYKD/spinmdkit/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 **SpinMDKit 是面向自旋分子动力学、格式可扩展的磁矩后处理框架。**
 它能够以流式方式读取大型轨迹、计算磁学观测量、导出可直接分析的时间序列，
@@ -176,6 +176,15 @@ spinmdkit.cli            只负责组合上述功能的轻量命令层
 
 设计细节见[数据模型](docs/data-model.md)、[架构](docs/architecture.md)和
 [新增读取器](docs/adding-readers.md)。
+
+## 许可证
+
+SpinMDKit 采用 [GNU General Public License version 3](LICENSE)。对修改版或
+衍生作品进行分发时，整个作品必须继续采用 GPLv3；分发目标代码时，还必须按
+许可证条款提供对应源代码。若要改为闭源或其他专有许可，必须另行取得相关版权
+持有人的授权。
+
+本次变更不会追溯撤销已经依据旧许可证合法取得的软件副本所获得的权利。
 
 ## 版本策略
 
