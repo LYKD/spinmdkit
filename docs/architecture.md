@@ -1,10 +1,9 @@
 # Architecture
 
 SpinMDKit is format-neutral at its core. It separates format adapters, validated
-data, physical semantics, computation, and presentation. Extended XYZ for
-current NEP-spin/GPUMD output is only the first built-in adapter. This avoids a
-common failure mode in scientific post-processing: one plotting script quietly
-becoming both the parser and the de facto data model.
+data, physical semantics, computation, and presentation. This avoids a common
+failure mode in scientific post-processing: one plotting script quietly becoming
+both the parser and the de facto data model.
 
 ```text
 Any supported spin-MD trajectory
@@ -37,9 +36,9 @@ selects a reader from an explicit format name or the longest matching suffix.
 Each reader yields the same `Frame` object one frame at a time, so memory cost
 can remain proportional to a frame rather than the full trajectory.
 
-The first adapter, `ExtXYZReader`, uses the Extended XYZ `Properties` schema to
+The built-in `ExtXYZReader` uses the Extended XYZ `Properties` schema to
 define column names, scalar types, and component counts. Unknown properties
-remain accessible instead of being discarded. Future adapters live beside it
+remain accessible instead of being discarded. Additional adapters live beside it
 under `spinmdkit.io.readers` and do not require changes in downstream modules.
 
 ### 2. Data model

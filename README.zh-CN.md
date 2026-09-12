@@ -13,8 +13,7 @@
 
 **SpinMDKit 是面向自旋分子动力学、格式可扩展的磁矩后处理框架。**
 它能够以流式方式读取大型轨迹、计算磁学观测量、导出可直接分析的时间序列，
-并绘制三维自旋矢量。当前 NEP-spin/GPUMD 结果所用的 Extended XYZ 只是第一个
-内置适配器，并不构成项目能力的边界。
+并绘制三维自旋矢量，内置支持 Extended XYZ 轨迹。
 
 项目底层有意保持精简：一个定义明确的帧数据模型、一个由格式模式驱动的流式
 读取器、一套经过测试的 Python API/CLI，以及可选的 C++17 加速内核。
@@ -134,7 +133,7 @@ for frame in iter_extxyz("trajectory.xyz"):
 ```text
 spinmdkit.data           经过验证的帧对象；不包含文件或绘图逻辑
 spinmdkit.io             读取器协议、格式注册表和轨迹访问
-spinmdkit.io.readers     相互隔离的适配器；Extended XYZ 是第一个内置实现
+spinmdkit.io.readers     相互隔离的输入格式适配器，包括 Extended XYZ
 spinmdkit.analysis       物理观测量和帧级汇总
 spinmdkit.kernels        NumPy/原生计算后端边界
 spinmdkit.export         低依赖 CSV 序列化
@@ -146,8 +145,8 @@ spinmdkit.cli            只负责组合上述功能的轻量命令层
 或 Matplotlib。因此，格式适配器、物理观测量和绘图器都可以独立测试与调试。
 
 新格式只需要实现小型 `TrajectoryReader` 协议，声明名称和文件后缀并完成注册。
-所有适配器都会生成同一种与格式无关的 `Frame`，所以分析和绘图代码中不需要
-出现 NEP/GPUMD 专用判断。
+所有适配器都会生成同一种与格式无关的 `Frame`，使下游分析和绘图不依赖输入
+文件的具体语法。
 
 ## 科学约定
 
@@ -156,7 +155,7 @@ spinmdkit.cli            只负责组合上述功能的轻量命令层
 - 力矩是按 `spin x mforce` 计算的派生量，不会被当作独立标签。
 - 只有在明确提供 `+1/-1` 子晶格符号后才计算 Néel 矢量。
 - `stress`、`virial`、单位和符号约定按源数据保存，SpinMDKit 不会静默换算。
-- NEP/GPUMD 模拟生成的数值是模型预测，不会被表述为 DFT 参考真值。
+- 数值会保留其来源信息，不会被重新表述为参考数据。
 
 设计细节见[数据模型](docs/data-model.md)、[架构](docs/architecture.md)和
 [新增读取器](docs/adding-readers.md)。
