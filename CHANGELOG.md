@@ -2,6 +2,17 @@
 
 All notable changes to SpinMDKit are documented here.
 
+## Unreleased (version remains 1.0.0)
+
+### Added
+
+- Added format-neutral magnetic-moment time-series analysis with explicit
+  computed or metadata time axes, output cadence, offset, and frame stride.
+- Added dependency-light CSV export and a horizontal two-panel plot for net
+  `Mx/My/Mz/|M|` and mean/minimum/maximum local-moment magnitudes.
+- Organized examples as self-contained directories with exact commands and
+  generated outputs.
+
 ## 1.0.0 - 2026-09-12
 
 ### Changed

@@ -63,9 +63,11 @@ systems.
 
 ### 5. Interfaces
 
-The CLI composes the same public API used by Python callers. CSV uses flat,
-stable field names. JSON and human-readable inspection output share the same
-summary values. Matplotlib is an optional dependency isolated to plotting.
+The format-neutral `MomentSeries` analysis result is shared by CSV export and
+plotting. `spinmdkit.export` owns dependency-light serializers, while
+`spinmdkit.visualization` owns optional Matplotlib rendering. The CLI only
+composes these operations. CSV uses flat, stable field names; JSON and
+human-readable inspection output share the same summary values.
 
 ## Source layout and dependency direction
 
@@ -75,7 +77,8 @@ summary values. Matplotlib is an optional dependency isolated to plotting.
 | `io` | reader contract, registry, adapters, and trajectory access | `data` |
 | `kernels` | native/NumPy numerical implementation boundary | NumPy, optional `_core` |
 | `analysis` | physical observable definitions and summaries | `data`, `kernels` |
-| `visualization` | optional static rendering | `data`, Matplotlib on demand |
+| `export` | CSV and future dependency-light serializers | `analysis` |
+| `visualization` | optional static rendering | `data`, `analysis`, Matplotlib on demand |
 | `cli` | command arguments and composition | public modules above |
 
 There are no imports from a lower layer back into a higher layer. A format

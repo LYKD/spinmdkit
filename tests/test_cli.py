@@ -1,5 +1,6 @@
 import csv
 import json
+from pathlib import Path
 
 import pytest
 
@@ -61,6 +62,51 @@ def test_timeseries_csv(example_path, tmp_path):
     assert len(rows) == 2
     assert rows[0]["time_raw"] == "0.0"
     assert rows[0]["neel_z"] == "2.0"
+    assert rows[0]["min_moment_norm"] == "2.0"
+    assert rows[0]["max_moment_norm"] == "2.0"
+
+
+def test_plot_moments_writes_csv_and_horizontal_figure(tmp_path, capsys):
+    pytest.importorskip("matplotlib")
+    trajectory = (
+        Path(__file__).parents[1]
+        / "examples"
+        / "moment_time_evolution"
+        / "trajectory.xyz"
+    )
+    output = tmp_path / "moments.png"
+    code = main(
+        [
+            "plot-moments",
+            str(trajectory),
+            "--species",
+            "U",
+            "--timestep",
+            "0.001",
+            "--sample-every",
+            "100",
+            "--time-offset",
+            "0.2",
+            "--time-unit",
+            "ps",
+            "--moment-unit",
+            "μB",
+            "--max-frames",
+            "3",
+            "--output",
+            str(output),
+        ]
+    )
+    assert code == 0
+    assert output.is_file()
+    assert output.stat().st_size > 1000
+    data_output = output.with_suffix(".csv")
+    with data_output.open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    assert [float(row["time"]) for row in rows] == pytest.approx([0.2, 0.3, 0.4])
+    assert rows[0]["time_unit"] == "ps"
+    assert rows[0]["moment_unit"] == "μB"
+    assert "Wrote figure" in capsys.readouterr().out
 
 
 def test_bad_pattern_is_reported(example_path, capsys):

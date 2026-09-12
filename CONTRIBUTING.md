@@ -21,7 +21,7 @@ requests it. See [VERSIONING.md](VERSIONING.md).
 Run the example CLI before submitting a change:
 
 ```bash
-spinmdkit inspect examples/un_afm.xyz --species U \
+spinmdkit inspect examples/afm_frame/trajectory.xyz --species U \
   --sublattice-pattern "+--+" --json
 ```
 

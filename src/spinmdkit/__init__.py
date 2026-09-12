@@ -2,6 +2,8 @@
 
 from ._version import __version__
 from .analysis import (
+    MomentSeries,
+    analyze_moment_series,
     magnetization,
     moment_norms,
     neel_vector,
@@ -24,9 +26,11 @@ from .kernels import backend
 __all__ = [
     "ExtXYZError",
     "Frame",
+    "MomentSeries",
     "Trajectory",
     "UnknownFormatError",
     "__version__",
+    "analyze_moment_series",
     "available_formats",
     "backend",
     "iter_extxyz",

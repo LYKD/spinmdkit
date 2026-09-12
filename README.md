@@ -74,6 +74,21 @@ derived `spin x mforce` torque norm:
 spinmdkit timeseries trajectory.xyz -o magnetic-timeseries.csv --species U
 ```
 
+Export the numerical data and render the net `Mx/My/Mz/|M|` plus
+mean/minimum/maximum local-moment evolution in one command:
+
+```bash
+spinmdkit plot-moments trajectory.xyz --species U \
+  --timestep 0.001 --sample-every 100 --time-offset 0.2 \
+  --time-unit ps --moment-unit "μB" -o moment_time_evolution.png
+```
+
+This writes `moment_time_evolution.csv` beside the two-panel horizontal PNG.
+Here `--sample-every` is the number of MD steps between stored frames;
+`--frame-stride` is available when post-processing downsampling is also wanted.
+Use `--time-source metadata --time-key Time` when frame metadata already carries
+time values.
+
 For an antiferromagnet, supply the sublattice signs explicitly. The pattern is
 repeated across the selected atoms only when its length divides their count:
 
@@ -89,10 +104,13 @@ spinmdkit plot-frame trajectory.xyz -o frame-0.png \
   --frame 0 --species U --normalize
 ```
 
-An eight-atom example is included:
+Self-contained examples are stored one per directory. The complete time-axis,
+CSV, and two-panel workflow is documented in
+[`examples/moment_time_evolution`](examples/moment_time_evolution/README.md).
+The eight-atom AFM example can be inspected with:
 
 ```bash
-spinmdkit inspect examples/un_afm.xyz --species U \
+spinmdkit inspect examples/afm_frame/trajectory.xyz --species U \
   --sublattice-pattern "+--+" --json
 ```
 
@@ -119,6 +137,7 @@ spinmdkit.io             reader contracts, format registry, and trajectory acces
 spinmdkit.io.readers     isolated adapters; Extended XYZ is the first built-in one
 spinmdkit.analysis       physical observables and frame summaries
 spinmdkit.kernels        NumPy/native compute backend boundary
+spinmdkit.export         dependency-light CSV serializers
 spinmdkit.visualization  optional plotting; imports Matplotlib on demand
 spinmdkit.cli            thin command composition only
 ```
@@ -160,6 +179,7 @@ automatically. See [VERSIONING.md](VERSIONING.md).
 | `spinmdkit formats` | List currently registered input adapters |
 | `spinmdkit inspect` | Stream and summarize trajectory structure and ranges |
 | `spinmdkit timeseries` | Export per-frame magnetic observables to CSV |
+| `spinmdkit plot-moments` | Export CSV and render a horizontal two-panel moment history |
 | `spinmdkit plot-frame` | Render a static 3D spin-vector image |
 
 ## Roadmap

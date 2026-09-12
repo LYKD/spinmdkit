@@ -44,3 +44,21 @@ that no unit conversion was performed. The library preserves stress and virial
 arrays and does not assume a sign convention. Simulation predictions and
 reference electronic-structure labels must be identified by the calling
 workflow; the library does not promote one to the other.
+
+## Moment time series
+
+`MomentSeries` is a format-neutral analysis result. It contains original frame
+indices, physical times, selected atom counts, net moment vectors and norms,
+and the mean/minimum/maximum magnitude of selected local moments. It does not
+contain parsing or plotting behavior.
+
+For a computed time axis,
+
+```text
+t(frame) = time_offset + frame_index * timestep * sample_every
+```
+
+where `sample_every` describes the simulation output cadence. An independent
+`frame_stride` can reduce post-processing density without changing the physical
+times. Metadata time is opt-in and requires a named numeric key plus an explicit
+scale, so an input label never silently overrides the requested time model.

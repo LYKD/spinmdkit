@@ -13,9 +13,10 @@ from pathlib import Path
 import numpy as np
 
 from ._version import __version__
-from .analysis import summarize_frame
+from .analysis import analyze_moment_series, summarize_frame
+from .export import write_moment_series_csv
 from .io import ExtXYZError, Trajectory, available_formats
-from .visualization import render_spin_frame
+from .visualization import render_moment_series, render_spin_frame
 
 
 def _selection(values: list[str] | None):
@@ -144,6 +145,8 @@ def _timeseries(args: argparse.Namespace) -> int:
         "magnetization_per_atom_y",
         "magnetization_per_atom_z",
         "mean_moment_norm",
+        "min_moment_norm",
+        "max_moment_norm",
         "neel_x",
         "neel_y",
         "neel_z",
@@ -176,6 +179,8 @@ def _timeseries(args: argparse.Namespace) -> int:
                     "magnetization_per_atom_y": per_atom[1],
                     "magnetization_per_atom_z": per_atom[2],
                     "mean_moment_norm": summary["mean_moment_norm"],
+                    "min_moment_norm": summary["min_moment_norm"],
+                    "max_moment_norm": summary["max_moment_norm"],
                     "neel_x": neel[0],
                     "neel_y": neel[1],
                     "neel_z": neel[2],
@@ -188,6 +193,47 @@ def _timeseries(args: argparse.Namespace) -> int:
     if written == 0:
         raise ValueError("trajectory contains no frames")
     print(f"Wrote {written} frame(s) to {args.output}")
+    return 0
+
+
+def _plot_moments(args: argparse.Namespace) -> int:
+    data_output = args.data_output or args.output.with_suffix(".csv")
+    resolved_paths = {
+        "input": args.input.resolve(),
+        "figure": args.output.resolve(),
+        "data": data_output.resolve(),
+    }
+    if len(set(resolved_paths.values())) != len(resolved_paths):
+        raise ValueError("input, figure output, and data output must be different")
+    selection = _selection(args.species)
+    trajectory = Trajectory(args.input, args.format)
+    series = analyze_moment_series(
+        trajectory,
+        selection,
+        timestep=args.timestep,
+        sample_every=args.sample_every,
+        time_offset=args.time_offset,
+        time_source=args.time_source,
+        time_key=args.time_key,
+        time_scale=args.time_scale,
+        time_unit=args.time_unit,
+        moment_unit=args.moment_unit,
+        frame_stride=args.frame_stride,
+        max_frames=args.max_frames,
+    )
+    write_moment_series_csv(series, data_output)
+    render_moment_series(
+        series,
+        args.output,
+        dpi=args.dpi,
+        title=args.title,
+    )
+    print(
+        f"Analyzed {len(series)} frame(s); time "
+        f"{series.times[0]:.8g}..{series.times[-1]:.8g} {series.time_unit}"
+    )
+    print(f"Wrote data: {data_output}")
+    print(f"Wrote figure: {args.output}")
     return 0
 
 
@@ -237,6 +283,49 @@ def _add_format_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _add_time_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--time-source",
+        choices=("computed", "metadata"),
+        default="computed",
+        help="derive time from sampling settings or frame metadata (default: computed)",
+    )
+    parser.add_argument(
+        "--timestep",
+        type=float,
+        default=1.0,
+        help="MD integration timestep in --time-unit (default: 1)",
+    )
+    parser.add_argument(
+        "--sample-every",
+        type=int,
+        default=1,
+        help="MD steps between stored trajectory frames (default: 1)",
+    )
+    parser.add_argument(
+        "--time-offset",
+        type=float,
+        default=0.0,
+        help="constant added to every time value (default: 0)",
+    )
+    parser.add_argument(
+        "--time-key",
+        default="Time",
+        help="numeric frame metadata key used by --time-source metadata",
+    )
+    parser.add_argument(
+        "--time-scale",
+        type=float,
+        default=1.0,
+        help="metadata time multiplier applied before the offset (default: 1)",
+    )
+    parser.add_argument(
+        "--time-unit",
+        default="step",
+        help="time-axis label recorded in CSV and figure (default: step)",
+    )
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="spinmdkit",
@@ -281,6 +370,40 @@ def _parser() -> argparse.ArgumentParser:
     series_parser.add_argument("--max-frames", type=int)
     series_parser.set_defaults(handler=_timeseries)
 
+    moment_plot_parser = commands.add_parser(
+        "plot-moments",
+        help="export and plot magnetic-moment evolution",
+    )
+    moment_plot_parser.add_argument("input", type=Path)
+    _add_format_argument(moment_plot_parser)
+    moment_plot_parser.add_argument(
+        "--output", "-o", type=Path, required=True, help="figure output path"
+    )
+    moment_plot_parser.add_argument(
+        "--data-output",
+        type=Path,
+        help="CSV path (default: figure path with a .csv suffix)",
+    )
+    moment_plot_parser.add_argument(
+        "--species", nargs="+", help="one or more element symbols"
+    )
+    _add_time_arguments(moment_plot_parser)
+    moment_plot_parser.add_argument(
+        "--moment-unit",
+        default="source unit",
+        help="moment-axis label recorded in CSV and figure",
+    )
+    moment_plot_parser.add_argument(
+        "--frame-stride",
+        type=int,
+        default=1,
+        help="analyze every Nth stored frame (default: 1)",
+    )
+    moment_plot_parser.add_argument("--max-frames", type=int)
+    moment_plot_parser.add_argument("--dpi", type=int, default=180)
+    moment_plot_parser.add_argument("--title")
+    moment_plot_parser.set_defaults(handler=_plot_moments)
+
     plot_parser = commands.add_parser(
         "plot-frame", help="render one 3D spin-vector frame"
     )
@@ -307,6 +430,10 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--max-atoms must be positive")
     if getattr(args, "dpi", None) is not None and args.dpi < 1:
         parser.error("--dpi must be positive")
+    if getattr(args, "sample_every", None) is not None and args.sample_every < 1:
+        parser.error("--sample-every must be positive")
+    if getattr(args, "frame_stride", None) is not None and args.frame_stride < 1:
+        parser.error("--frame-stride must be positive")
     if getattr(args, "arrow_length", None) is not None and args.arrow_length <= 0:
         parser.error("--arrow-length must be positive")
     try:
@@ -317,6 +444,7 @@ def main(argv: list[str] | None = None) -> int:
         KeyError,
         OSError,
         RuntimeError,
+        TypeError,
         ValueError,
     ) as exc:
         print(f"spinmdkit: error: {exc}", file=sys.stderr)
