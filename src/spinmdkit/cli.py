@@ -13,16 +13,30 @@ from pathlib import Path
 import numpy as np
 
 from ._version import __version__
-from .analysis import analyze_moment_series, summarize_frame
+from .analysis import analyze_moment_series, select_layer, summarize_frame
 from .export import write_moment_series_csv
 from .io import ExtXYZError, Trajectory, available_formats
-from .visualization import render_moment_series, render_spin_frame
+from .visualization import render_moment_series, render_spin_frame, render_spin_layer
 
 
 def _selection(values: list[str] | None):
     if not values:
         return None
     return values[0] if len(values) == 1 else values
+
+
+def _configure_windows_stdio() -> None:
+    """Use UTF-8 for redirected Windows output containing scientific units."""
+
+    if sys.platform != "win32":
+        return
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding="utf-8")
+            except (AttributeError, ValueError):
+                pass
 
 
 def _signs(pattern: str | None, count: int) -> np.ndarray | None:
@@ -256,6 +270,63 @@ def _plot_frame(args: argparse.Namespace) -> int:
     return 0
 
 
+def _plot_layer(args: argparse.Namespace) -> int:
+    output_base = args.output.with_suffix("") if args.output.suffix else args.output
+    output_paths = [output_base.with_suffix(suffix) for suffix in (".svg", ".pdf", ".png")]
+    if args.input.resolve() in {path.resolve() for path in output_paths}:
+        raise ValueError("input and figure output paths must be different")
+    trajectory = Trajectory(args.input, args.format)
+    frame = trajectory.frame(args.frame)
+    species = _selection(args.species)
+    selection = select_layer(
+        frame,
+        species,
+        axis=args.axis,
+        layer=args.layer,
+        coordinate=args.coordinate,
+        tolerance=args.tolerance,
+    )
+    magnitudes = np.linalg.norm(frame.spins[selection.indices], axis=1)
+    plane_magnitudes = np.linalg.norm(
+        frame.spins[selection.indices][:, selection.in_plane_axes], axis=1
+    )
+    title = args.title or (
+        f"SpinMDKit | frame {args.frame} | {selection.selection_label} | "
+        f"{args.axis}-layer"
+    )
+    rendered_paths = render_spin_layer(
+        frame,
+        selection,
+        args.output,
+        arrow_scale=args.arrow_scale,
+        point_size=args.point_size,
+        dpi=args.dpi,
+        moment_unit=args.moment_unit,
+        position_unit=args.position_unit,
+        cmap=args.cmap,
+        title=title,
+    )
+    print(
+        f"Selected {len(selection)} atom(s) from frame {args.frame}; "
+        f"{selection.axis}={selection.coordinate_min:.8g}.."
+        f"{selection.coordinate_max:.8g} {args.position_unit} "
+        f"({selection.mode})"
+    )
+    print(
+        "Local moment magnitude range: "
+        f"{float(np.min(magnitudes)):.8g}..{float(np.max(magnitudes)):.8g} "
+        f"{args.moment_unit}"
+    )
+    print(
+        f"In-plane ({selection.projection_name}) moment magnitude range: "
+        f"{float(np.min(plane_magnitudes)):.8g}.."
+        f"{float(np.max(plane_magnitudes)):.8g} {args.moment_unit}"
+    )
+    for path in rendered_paths:
+        print(f"Wrote {path}")
+    return 0
+
+
 def _formats(args: argparse.Namespace) -> int:
     formats = available_formats()
     if args.json:
@@ -418,10 +489,66 @@ def _parser() -> argparse.ArgumentParser:
     plot_parser.add_argument("--dpi", type=int, default=180)
     plot_parser.add_argument("--normalize", action="store_true")
     plot_parser.set_defaults(handler=_plot_frame)
+
+    layer_plot_parser = commands.add_parser(
+        "plot-layer",
+        help="render magnetic-moment arrows for one spatial atom layer",
+    )
+    layer_plot_parser.add_argument("input", type=Path)
+    _add_format_argument(layer_plot_parser)
+    layer_plot_parser.add_argument(
+        "--output",
+        "-o",
+        type=Path,
+        required=True,
+        help="figure path or stem; writes matching .svg, .pdf, and .png files",
+    )
+    layer_plot_parser.add_argument(
+        "--frame", type=int, default=-1, help="frame index (default: -1, last)"
+    )
+    layer_plot_parser.add_argument(
+        "--species", nargs="+", help="one or more element symbols"
+    )
+    layer_plot_parser.add_argument(
+        "--axis", choices=("x", "y", "z"), default="z"
+    )
+    layer_plot_parser.add_argument(
+        "--layer",
+        choices=("top", "bottom", "max", "min"),
+        default="top",
+        help="edge layer to select when --coordinate is omitted (default: top)",
+    )
+    layer_plot_parser.add_argument(
+        "--coordinate",
+        type=float,
+        help="explicit layer center in the source position unit",
+    )
+    layer_plot_parser.add_argument(
+        "--tolerance",
+        type=float,
+        help=(
+            "coordinate half-width; required with --coordinate and optional "
+            "for edge layers"
+        ),
+    )
+    layer_plot_parser.add_argument(
+        "--arrow-scale",
+        type=float,
+        default=1.0,
+        help="coordinate units per moment unit (default: 1)",
+    )
+    layer_plot_parser.add_argument("--point-size", type=float, default=24.0)
+    layer_plot_parser.add_argument("--moment-unit", default="source unit")
+    layer_plot_parser.add_argument("--position-unit", default="source unit")
+    layer_plot_parser.add_argument("--cmap", default="viridis")
+    layer_plot_parser.add_argument("--dpi", type=int, default=300)
+    layer_plot_parser.add_argument("--title")
+    layer_plot_parser.set_defaults(handler=_plot_layer)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
+    _configure_windows_stdio()
     parser = _parser()
     args = parser.parse_args(argv)
     if getattr(args, "max_frames", None) is not None and args.max_frames < 1:
@@ -436,6 +563,12 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--frame-stride must be positive")
     if getattr(args, "arrow_length", None) is not None and args.arrow_length <= 0:
         parser.error("--arrow-length must be positive")
+    if getattr(args, "arrow_scale", None) is not None and args.arrow_scale <= 0:
+        parser.error("--arrow-scale must be positive")
+    if getattr(args, "point_size", None) is not None and args.point_size <= 0:
+        parser.error("--point-size must be positive")
+    if getattr(args, "tolerance", None) is not None and args.tolerance < 0:
+        parser.error("--tolerance must be non-negative")
     try:
         return int(args.handler(args))
     except (

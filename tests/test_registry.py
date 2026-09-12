@@ -3,7 +3,7 @@ from io import StringIO
 import numpy as np
 import pytest
 
-from spinmdkit import Frame, Trajectory, available_formats, iter_frames
+from spinmdkit import Frame, Trajectory, available_formats, iter_frames, read_frame
 from spinmdkit.io import (
     UnknownFormatError,
     register_reader,
@@ -56,3 +56,9 @@ def test_new_format_adapter_does_not_change_analysis_or_data_layers():
 def test_unknown_suffix_has_actionable_error():
     with pytest.raises(UnknownFormatError, match="--format"):
         list(iter_frames("trajectory.unknown"))
+
+
+def test_negative_frame_index_reads_from_the_end(example_path):
+    assert read_frame(example_path, -1).metadata["Time"] == 1.0
+    with pytest.raises(IndexError, match="frame -3"):
+        read_frame(example_path, -3)

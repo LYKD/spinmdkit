@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
@@ -164,10 +165,13 @@ def read_frame(
     index: int = 0,
     format_name: str | None = None,
 ) -> Frame:
-    """Read one zero-based frame through the selected adapter."""
+    """Read one frame by zero-based or end-relative index."""
 
     if index < 0:
-        raise ValueError("index must be non-negative")
+        retained = deque(iter_frames(source, format_name), maxlen=-index)
+        if len(retained) < -index:
+            raise IndexError(f"trajectory has no frame {index}")
+        return retained[0]
     for frame_index, frame in enumerate(iter_frames(source, format_name)):
         if frame_index == index:
             return frame

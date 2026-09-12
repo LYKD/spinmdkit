@@ -47,11 +47,14 @@ under `spinmdkit.io.readers` and do not require changes in downstream modules.
 array lengths and vector shapes at the boundary. It does not infer units,
 magnetic species, sublattices, or reference-versus-prediction provenance.
 
-### 3. Observable layer
+### 3. Analysis layer
 
 Small functions calculate local-moment norms, net magnetization, explicit-sign
 Néel vectors, and `spin x mforce`. They operate on arrays and are independent of
-the parser, which makes them reusable and directly testable.
+the parser, which makes them reusable and directly testable. Spatial selection
+functions return atom indices and actual coordinate bounds without importing I/O
+or plotting code. A layer selection also defines its normal and two in-plane
+axes, so renderers can apply x→yz, y→xz, and z→xy projections consistently.
 
 ### 4. Compute backend
 
@@ -63,7 +66,8 @@ systems.
 ### 5. Interfaces
 
 The format-neutral `MomentSeries` analysis result is shared by CSV export and
-plotting. `spinmdkit.export` owns dependency-light serializers, while
+plotting. Layer selections are passed independently to the single-frame renderer.
+`spinmdkit.export` owns dependency-light serializers, while
 `spinmdkit.visualization` owns optional Matplotlib rendering. The CLI only
 composes these operations. CSV uses flat, stable field names; JSON and
 human-readable inspection output share the same summary values.
@@ -75,7 +79,7 @@ human-readable inspection output share the same summary values.
 | `data` | validated in-memory frame and property model | NumPy |
 | `io` | reader contract, registry, adapters, and trajectory access | `data` |
 | `kernels` | native/NumPy numerical implementation boundary | NumPy, optional `_core` |
-| `analysis` | physical observable definitions and summaries | `data`, `kernels` |
+| `analysis` | physical observables, spatial selections, and summaries | `data`, `kernels` |
 | `export` | CSV and future dependency-light serializers | `analysis` |
 | `visualization` | optional static rendering | `data`, `analysis`, Matplotlib on demand |
 | `cli` | command arguments and composition | public modules above |

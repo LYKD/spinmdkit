@@ -111,6 +111,24 @@ spinmdkit plot-frame trajectory.xyz -o frame-0.png \
   --frame 0 --species U --normalize
 ```
 
+Select the complete upper U layer from the last frame and draw a 3D moment view
+beside its in-plane projection, with magnitude-scaled arrows and a numerical
+color range on the right:
+
+```bash
+spinmdkit plot-layer examples/top_layer_moments/trajectory.xyz \
+  --frame -1 --species U --axis z --layer top \
+  --arrow-scale 1.0 --position-unit "Å" --moment-unit "μB" \
+  -o top_layer_moments.svg
+```
+
+Automatic edge-layer detection groups a plane from coordinate gaps rather than
+keeping only the atom at the exact maximum. A known plane can instead be selected
+with `--coordinate Z --tolerance DZ`. The projection follows the layer normal:
+an x layer uses the yz positions and `(my, mz)`, a y layer uses xz and `(mx, mz)`,
+and a z layer uses xy and `(mx, my)`. See the complete bilingual
+[`top_layer_moments` example](examples/top_layer_moments/README.md).
+
 Self-contained examples are stored one per directory. The complete time-axis,
 CSV, and two-panel workflow is documented in
 [`examples/moment_time_evolution`](examples/moment_time_evolution/README.md).
@@ -142,7 +160,7 @@ It also accepts `.xyz.gz` streams.
 spinmdkit.data           validated frame objects; no file or plot logic
 spinmdkit.io             reader contracts, format registry, and trajectory access
 spinmdkit.io.readers     isolated input-format adapters, including Extended XYZ
-spinmdkit.analysis       physical observables and frame summaries
+spinmdkit.analysis       physical observables, spatial selections, and summaries
 spinmdkit.kernels        NumPy/native compute backend boundary
 spinmdkit.export         dependency-light CSV serializers
 spinmdkit.visualization  optional plotting; imports Matplotlib on demand
@@ -187,11 +205,12 @@ automatically. See [VERSIONING.md](VERSIONING.md).
 | `spinmdkit timeseries` | Export per-frame magnetic observables to CSV |
 | `spinmdkit plot-moments` | Export CSV and render a horizontal two-panel moment history |
 | `spinmdkit plot-frame` | Render a static 3D spin-vector image |
+| `spinmdkit plot-layer` | Select one atomic layer and render magnitude-scaled moment arrows |
 
 ## Roadmap
 
 1. Additional simulation formats and trajectory writers through isolated adapters.
-2. Spatial, sublattice, and temperature-resolved magnetic observables.
+2. Additional spatial, sublattice, and temperature-resolved magnetic observables.
 3. Interactive and batch visualization pipelines.
 4. Stable plugin interfaces for domain-specific analyses.
 5. Benchmarks and scalable parallel readers for production trajectories.

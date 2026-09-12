@@ -105,6 +105,23 @@ spinmdkit plot-frame trajectory.xyz -o frame-0.png \
   --frame 0 --species U --normalize
 ```
 
+从最后一帧选择完整的顶层 U 原子，并把三维磁矩视图与面内投影横向排列；箭头按
+磁矩大小缩放，右侧色标给出数值范围：
+
+```bash
+spinmdkit plot-layer examples/top_layer_moments/trajectory.xyz \
+  --frame -1 --species U --axis z --layer top \
+  --arrow-scale 1.0 --position-unit "Å" --moment-unit "μB" \
+  -o top_layer_moments.svg
+```
+
+自动边界层识别会根据坐标间隔聚合出一个原子面，而不是只保留坐标恰好最大的
+单个原子。对于已知位置的面，也可以使用
+`--coordinate Z --tolerance DZ` 显式选择。投影会跟随选层法向：x 层使用 yz
+坐标及 `(my, mz)`，y 层使用 xz 坐标及 `(mx, mz)`，z 层使用 xy 坐标及
+`(mx, my)`。完整说明见双语
+[`top_layer_moments` 案例](examples/top_layer_moments/README.zh-CN.md)。
+
 每个完整示例都放在独立目录中。时间轴、CSV 和横排双图的完整流程见
 [`examples/moment_time_evolution`](examples/moment_time_evolution/README.zh-CN.md)。
 八原子反铁磁示例可以这样检查：
@@ -134,7 +151,7 @@ for frame in iter_extxyz("trajectory.xyz"):
 spinmdkit.data           经过验证的帧对象；不包含文件或绘图逻辑
 spinmdkit.io             读取器协议、格式注册表和轨迹访问
 spinmdkit.io.readers     相互隔离的输入格式适配器，包括 Extended XYZ
-spinmdkit.analysis       物理观测量和帧级汇总
+spinmdkit.analysis       物理观测量、空间选择和帧级汇总
 spinmdkit.kernels        NumPy/原生计算后端边界
 spinmdkit.export         低依赖 CSV 序列化
 spinmdkit.visualization  可选绘图层；仅在需要时导入 Matplotlib
@@ -174,11 +191,12 @@ spinmdkit.cli            只负责组合上述功能的轻量命令层
 | `spinmdkit timeseries` | 将逐帧磁学观测量导出为 CSV |
 | `spinmdkit plot-moments` | 导出 CSV 并绘制横向双面板磁矩时间演化图 |
 | `spinmdkit plot-frame` | 绘制某一帧的静态三维自旋矢量图 |
+| `spinmdkit plot-layer` | 选择一个原子层并绘制按磁矩大小缩放的箭头图 |
 
 ## 路线图
 
 1. 通过独立适配器支持更多模拟格式和轨迹写出格式。
-2. 增加空间分辨、子晶格分辨和温度分辨的磁学观测量。
+2. 增加更多空间分辨、子晶格分辨和温度分辨的磁学观测量。
 3. 建立交互式与批处理可视化流程。
 4. 为领域专用分析提供稳定的插件接口。
 5. 增加基准测试和适用于生产轨迹的可扩展并行读取器。

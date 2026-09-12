@@ -7,5 +7,5 @@ include CONTRIBUTING.md
 include VERSIONING.md
 include cpp/*.cpp
 recursive-include docs *.md *.png
-recursive-include examples *.csv *.md *.png *.xyz
+recursive-include examples *.csv *.md *.pdf *.png *.svg *.xyz
 recursive-include tests *.py

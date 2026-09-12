@@ -109,6 +109,51 @@ def test_plot_moments_writes_csv_and_horizontal_figure(tmp_path, capsys):
     assert "Wrote figure" in capsys.readouterr().out
 
 
+def test_plot_layer_selects_the_last_frame_top_u_plane(tmp_path, capsys):
+    pytest.importorskip("matplotlib")
+    trajectory = (
+        Path(__file__).parents[1]
+        / "examples"
+        / "top_layer_moments"
+        / "trajectory.xyz"
+    )
+    output = tmp_path / "top-layer.svg"
+
+    code = main(
+        [
+            "plot-layer",
+            str(trajectory),
+            "--frame",
+            "-1",
+            "--species",
+            "U",
+            "--axis",
+            "z",
+            "--layer",
+            "top",
+            "--position-unit",
+            "Å",
+            "--moment-unit",
+            "μB",
+            "--output",
+            str(output),
+        ]
+    )
+
+    assert code == 0
+    assert output.is_file()
+    assert output.with_suffix(".pdf").is_file()
+    assert output.with_suffix(".png").is_file()
+    svg = output.read_text(encoding="utf-8")
+    assert "In-plane moment magnitude (μB)" in svg
+    assert "xy projection" in svg
+    terminal_output = capsys.readouterr().out
+    assert "Selected 9 atom(s) from frame -1" in terminal_output
+    assert "z=3.98..4.03 Å" in terminal_output
+    assert "In-plane (xy) moment magnitude range" in terminal_output
+    assert terminal_output.count("Wrote ") == 3
+
+
 def test_bad_pattern_is_reported(example_path, capsys):
     code = main(
         ["inspect", str(example_path), "--species", "U", "--sublattice-pattern", "+-"]

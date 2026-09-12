@@ -11,3 +11,4 @@ input file, exact command, generated files, and scientific definitions.
 | --- | --- |
 | [`afm_frame/`](afm_frame/README.md) | Inspect a small U-N antiferromagnetic frame sequence |
 | [`moment_time_evolution/`](moment_time_evolution/README.md) | Export and plot net and local moment evolution |
+| [`top_layer_moments/`](top_layer_moments/README.md) | Plot magnitude-scaled moment arrows for one atomic layer |

@@ -2,11 +2,13 @@
 
 from ._version import __version__
 from .analysis import (
+    LayerSelection,
     MomentSeries,
     analyze_moment_series,
     magnetization,
     moment_norms,
     neel_vector,
+    select_layer,
     summarize_frame,
     torques,
 )
@@ -26,6 +28,7 @@ from .kernels import backend
 __all__ = [
     "ExtXYZError",
     "Frame",
+    "LayerSelection",
     "MomentSeries",
     "Trajectory",
     "UnknownFormatError",
@@ -40,6 +43,7 @@ __all__ = [
     "neel_vector",
     "read_frame",
     "register_reader",
+    "select_layer",
     "summarize_frame",
     "torques",
 ]

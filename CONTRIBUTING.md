@@ -33,6 +33,7 @@ spinmdkit inspect examples/afm_frame/trajectory.xyz --species U \
 - Make physical conventions explicit in names and documentation.
 - Do not infer AFM sublattices or change stress signs silently.
 - Add tests for valid input, malformed input, and the physical value expected.
+- Test spatial selectors separately from their renderers and report actual bounds.
 - Keep plotting dependencies optional and computation independent of the CLI.
 - Keep each example self-contained and include linked `README.md` and
   `README.zh-CN.md` files with equivalent commands and scientific definitions.

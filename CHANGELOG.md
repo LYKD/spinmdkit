@@ -12,14 +12,18 @@ All notable changes to SpinMDKit are documented here.
   `Mx/My/Mz/|M|` and mean/minimum/maximum local-moment magnitudes.
 - Organized examples as self-contained directories with exact commands and
   generated outputs.
+- Added reusable atomic-layer selection by edge or explicit coordinate slab,
+  including end-relative frame indices such as `-1` for the last frame.
+- Added side-by-side 3D and in-plane magnetic-moment arrows with automatic
+  x-to-yz, y-to-xz, and z-to-xy projection rules and SVG/PDF/PNG output.
 
 ## 1.0.0 - 2026-09-12
 
 ### Changed
 
 - Established `1.0.0` as the current stable baseline.
-- Reframed SpinMDKit as a format-extensible spin-MD post-processing framework;
-  Extended XYZ for NEP-spin/GPUMD is the first built-in adapter.
+- Established a format-extensible spin-MD post-processing framework with
+  built-in Extended XYZ support.
 - Added a format-neutral reader contract, registry, automatic suffix selection,
   explicit CLI format selection, and format discovery.
 - Centralized the package, CLI, and native-build version in `_version.py`.

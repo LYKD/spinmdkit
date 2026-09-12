@@ -11,3 +11,4 @@
 | --- | --- |
 | [`afm_frame/`](afm_frame/README.zh-CN.md) | 检查一个小型 U-N 反铁磁帧序列 |
 | [`moment_time_evolution/`](moment_time_evolution/README.zh-CN.md) | 导出并绘制净磁矩与局域磁矩的时间演化 |
+| [`top_layer_moments/`](top_layer_moments/README.zh-CN.md) | 绘制一个原子层中按磁矩大小缩放的箭头图 |
