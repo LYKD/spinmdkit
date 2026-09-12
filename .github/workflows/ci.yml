@@ -29,7 +29,7 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
       - name: Run CLI smoke test
-        run: spinmdkit inspect examples/un_afm.xyz --species U --sublattice-pattern "+--+" --json
+        run: spinmdkit inspect examples/afm_frame/trajectory.xyz --species U --sublattice-pattern "+--+" --json
 
   plot:
     runs-on: ubuntu-latest
@@ -41,3 +41,10 @@ jobs:
           cache: pip
       - run: python -m pip install ".[test,plot]"
       - run: python -m pytest tests/test_visualization.py -q
+      - name: Run moment plot smoke test
+        run: >-
+          spinmdkit plot-moments
+          examples/moment_time_evolution/trajectory.xyz
+          --species U --timestep 0.001 --sample-every 100
+          --time-offset 0.2 --time-unit ps --moment-unit mu_B
+          --output "${{ runner.temp }}/moment_time_evolution.png"
