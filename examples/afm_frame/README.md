@@ -1,3 +1,7 @@
+<p align="center">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 # Explicit AFM frame example
 
 This small two-frame trajectory demonstrates species selection and an explicit

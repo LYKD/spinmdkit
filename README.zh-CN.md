@@ -106,7 +106,7 @@ spinmdkit plot-frame trajectory.xyz -o frame-0.png \
 ```
 
 每个完整示例都放在独立目录中。时间轴、CSV 和横排双图的完整流程见
-[`examples/moment_time_evolution`](examples/moment_time_evolution/README.md)。
+[`examples/moment_time_evolution`](examples/moment_time_evolution/README.zh-CN.md)。
 八原子反铁磁示例可以这样检查：
 
 ```bash

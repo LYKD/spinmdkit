@@ -34,6 +34,8 @@ spinmdkit inspect examples/afm_frame/trajectory.xyz --species U \
 - Do not infer AFM sublattices or change stress signs silently.
 - Add tests for valid input, malformed input, and the physical value expected.
 - Keep plotting dependencies optional and computation independent of the CLI.
+- Keep each example self-contained and include linked `README.md` and
+  `README.zh-CN.md` files with equivalent commands and scientific definitions.
 
 Do not commit proprietary trajectories, access tokens, private paths, or large
 simulation outputs. Reduce a report to the smallest redistributable fixture.

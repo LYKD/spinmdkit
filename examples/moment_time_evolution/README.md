@@ -1,3 +1,7 @@
+<p align="center">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 # Magnetic-moment time evolution
 
 This example turns one multi-frame Extended XYZ trajectory into a numerical CSV
