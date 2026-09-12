@@ -12,8 +12,9 @@ from pathlib import Path
 
 import numpy as np
 
+from ._version import __version__
 from .analysis import summarize_frame
-from .io import ExtXYZError, iter_extxyz, read_frame
+from .io import ExtXYZError, Trajectory, available_formats
 from .visualization import render_spin_frame
 
 
@@ -40,8 +41,8 @@ def _signs(pattern: str | None, count: int) -> np.ndarray | None:
     return np.tile(unit, count // len(unit))
 
 
-def _limited_frames(path: Path, maximum: int | None):
-    frames = iter_extxyz(path)
+def _limited_frames(trajectory: Trajectory, maximum: int | None):
+    frames = iter(trajectory)
     if maximum is not None:
         frames = islice(frames, maximum)
     yield from enumerate(frames)
@@ -49,6 +50,7 @@ def _limited_frames(path: Path, maximum: int | None):
 
 def _inspect(args: argparse.Namespace) -> int:
     selection = _selection(args.species)
+    trajectory = Trajectory(args.input, args.format)
     frame_count = 0
     atom_counts: list[int] = []
     selected_counts: list[int] = []
@@ -60,7 +62,7 @@ def _inspect(args: argparse.Namespace) -> int:
     maxima: dict[str, float] = {}
     compute_backend = "unknown"
 
-    for _, frame in _limited_frames(args.input, args.max_frames):
+    for _, frame in _limited_frames(trajectory, args.max_frames):
         mask = frame.species_mask(selection)
         signs = _signs(args.sublattice_pattern, int(np.sum(mask)))
         summary = summarize_frame(frame, selection, signs)
@@ -84,6 +86,7 @@ def _inspect(args: argparse.Namespace) -> int:
         raise ValueError("trajectory contains no frames")
     result: dict[str, object] = {
         "input": str(args.input),
+        "format": trajectory.resolved_format,
         "frames": frame_count,
         "atoms_per_frame": [min(atom_counts), max(atom_counts)],
         "selected_atoms_per_frame": [min(selected_counts), max(selected_counts)],
@@ -126,6 +129,7 @@ def _inspect(args: argparse.Namespace) -> int:
 
 def _timeseries(args: argparse.Namespace) -> int:
     selection = _selection(args.species)
+    trajectory = Trajectory(args.input, args.format)
     if args.input.resolve() == args.output.resolve():
         raise ValueError("input and output paths must be different")
     fieldnames = [
@@ -152,7 +156,7 @@ def _timeseries(args: argparse.Namespace) -> int:
     with args.output.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=fieldnames)
         writer.writeheader()
-        for frame_index, frame in _limited_frames(args.input, args.max_frames):
+        for frame_index, frame in _limited_frames(trajectory, args.max_frames):
             mask = frame.species_mask(selection)
             signs = _signs(args.sublattice_pattern, int(np.sum(mask)))
             summary = summarize_frame(frame, selection, signs)
@@ -188,7 +192,8 @@ def _timeseries(args: argparse.Namespace) -> int:
 
 
 def _plot_frame(args: argparse.Namespace) -> int:
-    frame = read_frame(args.input, args.frame)
+    trajectory = Trajectory(args.input, args.format)
+    frame = trajectory.frame(args.frame)
     selection = _selection(args.species)
     render_spin_frame(
         frame,
@@ -205,16 +210,52 @@ def _plot_frame(args: argparse.Namespace) -> int:
     return 0
 
 
+def _formats(args: argparse.Namespace) -> int:
+    formats = available_formats()
+    if args.json:
+        payload = [
+            {
+                "name": item.name,
+                "extensions": list(item.extensions),
+                "aliases": list(item.aliases),
+            }
+            for item in formats
+        ]
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        for item in formats:
+            aliases = f" (aliases: {', '.join(item.aliases)})" if item.aliases else ""
+            print(f"{item.name}: {', '.join(item.extensions)}{aliases}")
+    return 0
+
+
+def _add_format_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--format",
+        default="auto",
+        help="input format name or 'auto' (default: auto)",
+    )
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="spinmdkit",
         description="Stream, analyze, and visualize spin molecular-dynamics trajectories.",
     )
-    parser.add_argument("--version", action="version", version="spinmdkit 0.1.0a1")
+    parser.add_argument(
+        "--version", action="version", version=f"spinmdkit {__version__}"
+    )
     commands = parser.add_subparsers(dest="command", required=True)
+
+    formats_parser = commands.add_parser(
+        "formats", help="list registered input formats"
+    )
+    formats_parser.add_argument("--json", action="store_true")
+    formats_parser.set_defaults(handler=_formats)
 
     inspect_parser = commands.add_parser("inspect", help="summarize a trajectory")
     inspect_parser.add_argument("input", type=Path)
+    _add_format_argument(inspect_parser)
     inspect_parser.add_argument(
         "--species", nargs="+", help="one or more element symbols"
     )
@@ -229,6 +270,7 @@ def _parser() -> argparse.ArgumentParser:
         "timeseries", help="export magnetic observables to CSV"
     )
     series_parser.add_argument("input", type=Path)
+    _add_format_argument(series_parser)
     series_parser.add_argument("--output", "-o", type=Path, required=True)
     series_parser.add_argument(
         "--species", nargs="+", help="one or more element symbols"
@@ -243,6 +285,7 @@ def _parser() -> argparse.ArgumentParser:
         "plot-frame", help="render one 3D spin-vector frame"
     )
     plot_parser.add_argument("input", type=Path)
+    _add_format_argument(plot_parser)
     plot_parser.add_argument("--output", "-o", type=Path, required=True)
     plot_parser.add_argument("--frame", type=int, default=0)
     plot_parser.add_argument("--species", nargs="+", help="one or more element symbols")

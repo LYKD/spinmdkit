@@ -1,3 +1,4 @@
+import gzip
 from io import StringIO
 
 import numpy as np
@@ -60,3 +61,12 @@ def test_duplicate_property_names_are_rejected():
     )
     with pytest.raises(ExtXYZError, match="duplicate property"):
         list(iter_extxyz(StringIO(broken)))
+
+
+def test_gzipped_xyz_uses_the_same_streaming_adapter(tmp_path):
+    trajectory = tmp_path / "trajectory.xyz.gz"
+    with gzip.open(trajectory, "wt", encoding="utf-8") as stream:
+        stream.write(TEXT)
+    frame = read_frame(trajectory)
+    assert frame.metadata["Time"] == 12.5
+    assert frame.properties["spin"].shape == (2, 3)

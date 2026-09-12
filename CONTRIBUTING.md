@@ -15,6 +15,9 @@ python -m pytest
 
 Install `.[plot]` only when working on the independent visualization layer.
 
+Do not change the version in a contribution unless the maintainer explicitly
+requests it. See [VERSIONING.md](VERSIONING.md).
+
 Run the example CLI before submitting a change:
 
 ```bash
@@ -25,6 +28,8 @@ spinmdkit inspect examples/un_afm.xyz --species U \
 ## Design rules
 
 - Preserve unknown input fields and source metadata.
+- Keep format-specific parsing inside an isolated reader adapter.
+- Make readers yield the common `Frame`; do not add format checks to analysis.
 - Make physical conventions explicit in names and documentation.
 - Do not infer AFM sublattices or change stress signs silently.
 - Add tests for valid input, malformed input, and the physical value expected.

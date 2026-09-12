@@ -1,7 +1,25 @@
 import csv
 import json
 
+import pytest
+
+from spinmdkit import __version__
 from spinmdkit.cli import main
+
+
+def test_version_is_maintainer_assigned_1_0_0(capsys):
+    with pytest.raises(SystemExit) as exit_info:
+        main(["--version"])
+    assert exit_info.value.code == 0
+    assert capsys.readouterr().out.strip() == "spinmdkit 1.0.0"
+    assert __version__ == "1.0.0"
+
+
+def test_formats_command_lists_extxyz(capsys):
+    assert main(["formats", "--json"]) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result[0]["name"] == "extxyz"
+    assert ".xyz" in result[0]["extensions"]
 
 
 def test_inspect_json(example_path, capsys):

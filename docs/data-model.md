@@ -10,8 +10,14 @@
 | `properties[name]` | `(N,)` or `(N, k)` | named Extended XYZ atom property |
 | `metadata[key]` | scalar, string, or array | unmodified frame-level information |
 
-The parser requires `species:S:1` and `pos:R:3`. It retains all additional
-schema entries, including integer, real, logical, and string values.
+The format-neutral model requires species labels and three-component positions.
+Each adapter maps its source format into those fields and preserves additional
+per-atom values in `properties` and frame-level information in `metadata`.
+
+The built-in Extended XYZ adapter requires `species:S:1` and `pos:R:3`. It
+retains all additional schema entries, including integer, real, logical, and
+string values. Future formats need not use Extended XYZ names on disk; their
+adapter is responsible for an explicit, documented mapping into `Frame`.
 
 ## Magnetic fields
 

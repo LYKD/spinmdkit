@@ -3,6 +3,7 @@ include CHANGELOG.md
 include LICENSE
 include README.md
 include CONTRIBUTING.md
+include VERSIONING.md
 include cpp/*.cpp
 recursive-include docs *.md
 recursive-include examples *.xyz
