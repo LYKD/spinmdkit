@@ -1,0 +1,34 @@
+# Contributing
+
+SpinMDKit welcomes focused issues, small pull requests, and representative
+GPUMD/NEP-spin test cases that can be redistributed.
+
+## Development setup
+
+```bash
+git clone https://github.com/LYKD/spinmdkit.git
+cd spinmdkit
+python -m pip install -U pip
+python -m pip install ".[dev]"
+python -m pytest
+```
+
+Install `.[plot]` only when working on the independent visualization layer.
+
+Run the example CLI before submitting a change:
+
+```bash
+spinmdkit inspect examples/un_afm.xyz --species U \
+  --sublattice-pattern "+--+" --json
+```
+
+## Design rules
+
+- Preserve unknown input fields and source metadata.
+- Make physical conventions explicit in names and documentation.
+- Do not infer AFM sublattices or change stress signs silently.
+- Add tests for valid input, malformed input, and the physical value expected.
+- Keep plotting dependencies optional and computation independent of the CLI.
+
+Do not commit proprietary trajectories, access tokens, private paths, or large
+simulation outputs. Reduce a report to the smallest redistributable fixture.
