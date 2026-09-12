@@ -1,15 +1,13 @@
 # Brand assets
 
-`spinmdkit-logo.png` is the primary SpinMDKit mark. It is an exact, transparent
-crop of the graphical symbol supplied by the maintainer; the artwork was not
-redrawn or recolored. `spinmdkit-lockup.png` preserves the complete supplied
-horizontal artwork, including the `SpinMDKit` wordmark.
+`spinmdkit-lockup.png` is the primary SpinMDKit logo. It preserves the complete
+supplied horizontal artwork, including the graphical symbol and the
+`SpinMDKit` wordmark. The file is the original 1983 x 793 transparent PNG; it
+has not been redrawn, recolored, rescaled, or recompressed.
 
-Use the icon-only mark for repository documentation, compact application icons,
-and places where the project name is already present as text. The separate
-`SpinMDKit` lettering is treated as an optional wordmark rather than part of the
-required compact logo. Use the complete lockup only when the project name is not
-already displayed nearby.
+Use the complete lockup for repository documentation and other primary brand
+placements. Preserve its aspect ratio, colors, clear space, and transparency.
 
-The PNG is 768 x 768 with a transparent background. Preserve its aspect ratio,
-colors, clear space, and transparency.
+`spinmdkit-logo.png` is a 768 x 768 transparent crop of the graphical symbol.
+Keep it as the compact alternative for square application icons or placements
+that cannot accommodate the horizontal lockup.

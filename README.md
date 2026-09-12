@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/spinmdkit-logo.png" alt="SpinMDKit logo" width="260">
+  <img src="docs/assets/spinmdkit-lockup.png" alt="SpinMDKit logo" width="720">
 </p>
 
 <p align="center">
